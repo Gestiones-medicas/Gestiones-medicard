@@ -226,10 +226,6 @@ Ayudamos a clínicas y centros médicos a optimizar sus ingresos, reducir pérdi
 <p>Implementamos controles que mejoran la gestión administrativa de su centro médico.</p>
 </div>
 
-</div>
-
-</section>
-
 <section class="container">
 
 <h2>Nuestro Proceso de Trabajo</h2>
@@ -256,10 +252,6 @@ Ayudamos a clínicas y centros médicos a optimizar sus ingresos, reducir pérdi
 <p>Incremento en ingresos y mejora en los procesos administrativos.</p>
 </div>
 
-</div>
-
-</section>
-
 <section class="container">
 
 <h2>Resultados que ofrecemos</h2>
@@ -281,10 +273,6 @@ Ayudamos a clínicas y centros médicos a optimizar sus ingresos, reducir pérdi
 <p>Transparencia en procesos administrativos</p>
 </div>
 
-</div>
-
-</section>
-
 <section class="contact" id="contacto">
 
 <h2>Contáctanos</h2>
@@ -293,12 +281,20 @@ Ayudamos a clínicas y centros médicos a optimizar sus ingresos, reducir pérdi
 <p>📞 849-393-2327</p>
 <p>✉ gestionesmedicas04@gmail.com</p>
 
-<form action="https://formspree.io/f/xxxxabcd" method="POST">
+<form action="https://formspree.io/f/xxxxabcd" method="POST" id="formulario">
 
 <input type="text" name="nombre" placeholder="Nombre" required>
 <input type="email" name="email" placeholder="Correo electrónico" required>
 <input type="tel" name="telefono" placeholder="Teléfono">
 <textarea name="mensaje" placeholder="Mensaje" required></textarea>
+
+<button type="submit">Enviar mensaje</button>
+
+<p id="mensaje-exito" style="display:none; margin-top:15px; color:#00ffcc; font-weight:bold;">
+✅ Gracias, te contactaremos pronto.
+</p>
+
+</form>
 
 <button type="submit">Enviar mensaje</button>
 
