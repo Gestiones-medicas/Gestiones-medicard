@@ -1,73 +1,236 @@
-<script>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>AI Video SaaS</title>
 
-// ===============================
-// GENERAR GUION REAL (OpenAI)
-// ===============================
-async function generateScript() {
-  const topic = document.getElementById("topic").value;
-
-  const res = await fetch("http://localhost:3000/api/ai", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ topic })
-  });
-
-  const data = await res.json();
-
-  document.getElementById("script").value = data.script;
+<style>
+body {
+  background:#0a0a0a;
+  color:#00ff00;
+  font-family: monospace;
 }
 
-// ===============================
-// GENERAR VIDEO REAL (HeyGen)
-// ===============================
-async function generateVideo() {
+.container {
+  max-width:900px;
+  margin:auto;
+  padding:20px;
+}
 
-  const script = document.getElementById("script").value;
+.card {
+  border:1px solid #00ff00;
+  padding:20px;
+  margin-bottom:20px;
+}
 
-  document.getElementById("videoArea").innerHTML = "⏳ Generando...";
+input, textarea {
+  width:100%;
+  background:black;
+  color:#00ff00;
+  border:1px solid #00ff00;
+  padding:10px;
+}
 
-  const res = await fetch("http://localhost:3000/api/video", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ text: script })
-  });
+button {
+  background:#00ff00;
+  color:black;
+  padding:10px;
+  margin-top:10px;
+  cursor:pointer;
+}
 
-  const data = await res.json();
+.hidden { display:none; }
+</style>
+</head>
 
-  if (!data.data) {
-    alert("Error generando video");
+<body>
+
+<div class="container">
+
+<h1>🧠 AI VIDEO SaaS</h1>
+
+<!-- LOGIN -->
+<div id="auth">
+<div class="card">
+<h3>Login / Registro</h3>
+<input id="email" placeholder="email">
+<input id="password" placeholder="password">
+<button onclick="register()">Registrarse</button>
+<button onclick="login()">Login</button>
+</div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="hidden">
+
+<div class="card">
+<h3>👤 Usuario: <span id="userEmail"></span></h3>
+<h3>💰 Créditos: <span id="credits"></span></h3>
+<button onclick="logout()">Salir</button>
+</div>
+
+<div class="card">
+<h3>🎯 Generar Guion</h3>
+<input id="topic" placeholder="Tema">
+<button onclick="generateScript()">Generar IA</button>
+<textarea id="script"></textarea>
+</div>
+
+<div class="card">
+<h3>🎬 Generar Video</h3>
+<button onclick="generateVideo()">Generar</button>
+<div id="videoArea"></div>
+</div>
+
+<div class="card">
+<h3>📂 Historial</h3>
+<div id="history"></div>
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+// ================= USERS =================
+
+function getUsers() {
+  return JSON.parse(localStorage.getItem("users") || "[]");
+}
+
+function saveUsers(users) {
+  localStorage.setItem("users", JSON.stringify(users));
+}
+
+function register() {
+  const email = document.getElementById("email").value;
+  const pass = document.getElementById("password").value;
+
+  let users = getUsers();
+
+  if (users.find(u => u.email === email)) {
+    alert("Usuario ya existe");
     return;
   }
 
-  const videoId = data.data.video_id;
+  users.push({
+    email,
+    pass,
+    credits: 5,
+    history:[]
+  });
 
-  // polling
-  let videoUrl = null;
-
-  while (!videoUrl) {
-    await new Promise(r => setTimeout(r, 3000));
-
-    const statusRes = await fetch(
-      `https://api.heygen.com/v1/video/status?video_id=${videoId}`,
-      {
-        headers: {
-          "X-Api-Key": "NO USAR AQUÍ (esto debe ir en backend)"
-        }
-      }
-    );
-
-    const statusData = await statusRes.json();
-
-    if (statusData.data?.status === "completed") {
-      videoUrl = statusData.data.video_url;
-    }
-  }
-
-  document.getElementById("videoArea").innerHTML = `
-    <video controls src="${videoUrl}"></video>
-  `;
+  saveUsers(users);
+  alert("Registrado");
 }
 
+function login() {
+  const email = document.getElementById("email").value;
+  const pass = document.getElementById("password").value;
+
+  let user = getUsers().find(u => u.email === email && u.pass === pass);
+
+  if (!user) {
+    alert("Error login");
+    return;
+  }
+
+  localStorage.setItem("session", email);
+  loadDashboard();
+}
+
+function logout() {
+  localStorage.removeItem("session");
+  location.reload();
+}
+
+// ================= DASHBOARD =================
+
+function loadDashboard() {
+  const email = localStorage.getItem("session");
+
+  if (!email) return;
+
+  document.getElementById("auth").classList.add("hidden");
+  document.getElementById("dashboard").classList.remove("hidden");
+
+  const user = getUsers().find(u => u.email === email);
+
+  document.getElementById("userEmail").innerText = user.email;
+  document.getElementById("credits").innerText = user.credits;
+
+  renderHistory(user.history);
+}
+
+// ================= IA =================
+
+function generateScript() {
+  const topic = document.getElementById("topic").value;
+
+  const script = `🔥 Video viral sobre ${topic}.
+Aprende tips de ciberseguridad y protege tus datos.`;
+
+  document.getElementById("script").value = script;
+}
+
+// ================= VIDEO =================
+
+function generateVideo() {
+
+  const email = localStorage.getItem("session");
+  let users = getUsers();
+  let user = users.find(u => u.email === email);
+
+  if (user.credits <= 0) {
+    alert("Sin créditos");
+    return;
+  }
+
+  const script = document.getElementById("script").value;
+
+  document.getElementById("videoArea").innerHTML = "Generando...";
+
+  setTimeout(() => {
+
+    const video = "https://www.w3schools.com/html/mov_bbb.mp4";
+
+    user.credits--;
+
+    user.history.unshift({
+      video,
+      script,
+      date:new Date().toLocaleString()
+    });
+
+    saveUsers(users);
+
+    document.getElementById("credits").innerText = user.credits;
+
+    document.getElementById("videoArea").innerHTML =
+      `<video controls src="${video}" width="100%"></video>`;
+
+    renderHistory(user.history);
+
+  },2000);
+}
+
+// ================= HISTORIAL =================
+
+function renderHistory(hist) {
+  document.getElementById("history").innerHTML =
+    hist.map(h => `
+      <div>
+        🎬 ${h.date}
+      </div>
+    `).join("");
+}
+
+// ================= INIT =================
+
+loadDashboard();
+
 </script>
+
+</body>
+</html>
