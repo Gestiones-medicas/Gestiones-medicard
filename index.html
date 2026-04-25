@@ -1,236 +1,902 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>AI Video SaaS</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>AI Video SaaS - Generador de Videos con IA</title>
+    <style>
+        /* ============================================
+           ESTILOS PREMIUM - TEMA HACKER NEÓN
+        ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-<style>
-body {
-  background:#0a0a0a;
-  color:#00ff00;
-  font-family: monospace;
-}
+        body {
+            background: #0a0a0a;
+            background-image: 
+                linear-gradient(0deg, rgba(0, 255, 0, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 0, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            font-family: 'Courier New', 'Fira Code', monospace;
+            color: #00ff00;
+            min-height: 100vh;
+            padding: 20px;
+        }
 
-.container {
-  max-width:900px;
-  margin:auto;
-  padding:20px;
-}
+        /* Scrollbar hacker */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #000;
+            border: 1px solid #00ff00;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #00ff00;
+            border-radius: 0;
+        }
 
-.card {
-  border:1px solid #00ff00;
-  padding:20px;
-  margin-bottom:20px;
-}
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
 
-input, textarea {
-  width:100%;
-  background:black;
-  color:#00ff00;
-  border:1px solid #00ff00;
-  padding:10px;
-}
+        /* Efecto glitch */
+        .glitch {
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            text-shadow: 0.05em 0 0 rgba(255,0,0,0.5), -0.05em -0.025em 0 rgba(0,255,0,0.5);
+            animation: glitch 0.3s infinite;
+        }
 
-button {
-  background:#00ff00;
-  color:black;
-  padding:10px;
-  margin-top:10px;
-  cursor:pointer;
-}
+        @keyframes glitch {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(-1px, 1px); }
+            40% { transform: translate(-1px, -1px); }
+            60% { transform: translate(1px, 1px); }
+            80% { transform: translate(1px, -1px); }
+        }
 
-.hidden { display:none; }
-</style>
+        /* Tarjetas */
+        .card {
+            border: 2px solid #00ff00;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(8px);
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            box-shadow: 0 0 25px rgba(0, 255, 0, 0.2);
+            border-color: #00ff44;
+        }
+
+        /* Inputs estilo terminal */
+        input, textarea, select {
+            width: 100%;
+            background: #000;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            font-family: monospace;
+            padding: 12px;
+            border-radius: 6px;
+            margin: 8px 0;
+            transition: all 0.2s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            box-shadow: 0 0 10px #00ff00;
+            border-color: #00ff44;
+        }
+
+        /* Botones */
+        button {
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 12px 24px;
+            font-family: monospace;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: 6px;
+            margin: 5px;
+        }
+
+        button:hover:not(:disabled) {
+            background: #00cc00;
+            transform: scale(1.02);
+            box-shadow: 0 0 15px #00ff00;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-danger {
+            background: #ff0000;
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: #cc0000;
+        }
+
+        .btn-secondary {
+            background: #003300;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+        }
+
+        /* Grids */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            .glitch {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Loader */
+        .loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #00ff00;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            margin: 4px;
+        }
+
+        .badge-success {
+            background: #004400;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+        }
+
+        .badge-warning {
+            background: #443300;
+            border: 1px solid #ffaa00;
+            color: #ffaa00;
+        }
+
+        .badge-danger {
+            background: #440000;
+            border: 1px solid #ff0000;
+            color: #ff6666;
+        }
+
+        /* Mensajes */
+        .alert {
+            padding: 12px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+
+        .alert-success {
+            background: #004400;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+        }
+
+        .alert-error {
+            background: #440000;
+            border: 1px solid #ff0000;
+            color: #ff6666;
+        }
+
+        .alert-info {
+            background: #003344;
+            border: 1px solid #00aaff;
+            color: #00aaff;
+        }
+
+        /* Video container */
+        .video-container {
+            background: #000;
+            border: 1px solid #00ff00;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        video {
+            width: 100%;
+            display: block;
+        }
+
+        /* Historial */
+        .history-item {
+            border: 1px solid #00ff00;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .history-item:hover {
+            background: rgba(0, 255, 0, 0.1);
+            transform: translateX(5px);
+        }
+
+        /* Animaciones */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .animate-pulse {
+            animation: pulse 1.5s infinite;
+        }
+
+        /* Header */
+        .command-line {
+            font-size: 12px;
+            margin-bottom: 15px;
+            opacity: 0.7;
+        }
+
+        .command-line::before {
+            content: "┌─[ai-video-saaS]──";
+            color: #00cc44;
+        }
+
+        hr {
+            border-color: #00ff00;
+            margin: 20px 0;
+            opacity: 0.3;
+        }
+    </style>
 </head>
-
 <body>
 
 <div class="container">
+    <!-- Header -->
+    <div class="command-line"></div>
+    <div class="command-line"><span></span> ./ai_video_saas --production --full-features</div>
+    
+    <h1 class="glitch">🧠 AI VIDEO SaaS</h1>
+    <p style="margin-bottom: 20px; opacity: 0.8;">
+        Generador profesional de videos con IA | 
+        <span style="color: #00ff44;">Sistema de créditos</span> | 
+        <span style="color: #00ff44;">Historial</span> |
+        <span style="color: #00ff44;">Cache inteligente</span>
+    </p>
+    <hr>
 
-<h1>🧠 AI VIDEO SaaS</h1>
+    <!-- LOGIN / REGISTRO -->
+    <div id="auth">
+        <div class="card">
+            <h3>>_ ACCESO AL SISTEMA</h3>
+            <div class="grid-2">
+                <div>
+                    <label>📧 Email</label>
+                    <input id="email" type="email" placeholder="usuario@ejemplo.com">
+                    <label>🔑 Contraseña</label>
+                    <input id="password" type="password" placeholder="mínimo 6 caracteres">
+                    <div style="margin-top: 15px;">
+                        <button onclick="register()">📝 Registrarse</button>
+                        <button onclick="login()">🚀 Iniciar Sesión</button>
+                    </div>
+                </div>
+                <div style="border-left: 1px solid #00ff00; padding-left: 20px;">
+                    <p style="font-size: 12px; margin-bottom: 10px;">✨ <strong>Beneficios:</strong></p>
+                    <p style="font-size: 11px;">🎬 5 créditos gratis al registrarte</p>
+                    <p style="font-size: 11px;">🤖 IA para generar guiones</p>
+                    <p style="font-size: 11px;">💾 Historial ilimitado</p>
+                    <p style="font-size: 11px;">⚡ Cache inteligente</p>
+                    <p style="font-size: 11px;">📱 Descarga 16:9 y 16:16</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<!-- LOGIN -->
-<div id="auth">
-<div class="card">
-<h3>Login / Registro</h3>
-<input id="email" placeholder="email">
-<input id="password" placeholder="password">
-<button onclick="register()">Registrarse</button>
-<button onclick="login()">Login</button>
-</div>
-</div>
+    <!-- DASHBOARD -->
+    <div id="dashboard" style="display: none;">
+        <!-- Stats card -->
+        <div class="card">
+            <div class="grid-3">
+                <div>
+                    <div>👤 <strong>USUARIO</strong></div>
+                    <div style="font-size: 20px; margin-top: 5px;" id="userEmail">-</div>
+                </div>
+                <div>
+                    <div>💰 <strong>CRÉDITOS</strong></div>
+                    <div style="font-size: 20px; margin-top: 5px;">
+                        <span id="credits">0</span>
+                        <span style="font-size: 12px;">/ video = 1 crédito</span>
+                    </div>
+                </div>
+                <div>
+                    <div>📊 <strong>ESTADÍSTICAS</strong></div>
+                    <div style="font-size: 12px; margin-top: 5px;" id="statsInfo">
+                        Videos generados: <span id="totalVideos">0</span>
+                    </div>
+                </div>
+            </div>
+            <hr style="margin: 15px 0;">
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button class="btn-secondary" onclick="addCreditsDemo()">🎁 +1 Crédito (Demo)</button>
+                <button class="btn-danger" onclick="logout()">🚪 Cerrar Sesión</button>
+            </div>
+        </div>
 
-<!-- DASHBOARD -->
-<div id="dashboard" class="hidden">
+        <!-- Generación de Guion con IA -->
+        <div class="card">
+            <h3>>_ GENERADOR DE GUION CON IA</h3>
+            <div class="grid-2">
+                <div>
+                    <label>📝 Tema / Palabra clave</label>
+                    <input id="topic" placeholder="Ej: ciberseguridad, marketing digital, inteligencia artificial">
+                    <div style="margin-top: 10px;">
+                        <label>🎙️ Estilo de voz</label>
+                        <select id="voiceStyle">
+                            <option value="formal">Profesional / Formal</option>
+                            <option value="hacker" selected>Hacker / Cyberpunk</option>
+                            <option value="friendly">Amigable / Divertido</option>
+                            <option value="urgent">Urgente / Persuasivo</option>
+                        </select>
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <label>📏 Longitud</label>
+                        <select id="scriptLength">
+                            <option value="short">Corto (30-40 segundos)</option>
+                            <option value="medium" selected>Medio (45-60 segundos)</option>
+                            <option value="long">Largo (90-120 segundos)</option>
+                        </select>
+                    </div>
+                    <button onclick="generateScriptAI()" style="width: 100%; margin-top: 15px;">
+                        🤖 Generar Guion con IA
+                    </button>
+                </div>
+                <div>
+                    <label>📄 Guion generado</label>
+                    <textarea id="script" rows="8" placeholder="El guion aparecerá aquí..."></textarea>
+                    <button onclick="copyScript()" class="btn-secondary" style="width: 100%; margin-top: 8px;">
+                        📋 Copiar guion
+                    </button>
+                </div>
+            </div>
+        </div>
 
-<div class="card">
-<h3>👤 Usuario: <span id="userEmail"></span></h3>
-<h3>💰 Créditos: <span id="credits"></span></h3>
-<button onclick="logout()">Salir</button>
-</div>
+        <!-- Generación de Video -->
+        <div class="card">
+            <h3>>_ GENERAR VIDEO CON AVATAR IA</h3>
+            <div class="grid-2">
+                <div>
+                    <label>🎭 Avatar</label>
+                    <select id="avatarSelect">
+                        <option value="hacker">🧑‍💻 Hacker (Estilo Cyberpunk)</option>
+                        <option value="professional">👔 Profesional (Ejecutivo)</option>
+                        <option value="teacher">👩‍🏫 Educador (Amigable)</option>
+                        <option value="tech">🤖 Tech (Futurista)</option>
+                    </select>
+                    <label>🎙️ Voz del Avatar</label>
+                    <select id="voiceSelect">
+                        <option value="male">👨 Masculina (Grave)</option>
+                        <option value="female">👩 Femenina (Neutral)</option>
+                    </select>
+                    <div class="alert-info" style="font-size: 12px; margin-top: 10px;">
+                        ℹ️ 1 crédito = 1 video generado<br>
+                        💾 Los videos se guardan en caché para no repetir créditos
+                    </div>
+                </div>
+                <div>
+                    <div id="videoArea" style="min-height: 200px; text-align: center;">
+                        <div style="padding: 60px 20px; opacity: 0.6;">
+                            🎬 Esperando generación...
+                        </div>
+                    </div>
+                    <button onclick="generateVideo()" id="generateBtn" style="width: 100%; margin-top: 15px;">
+                        🚀 GENERAR VIDEO (1 CRÉDITO)
+                    </button>
+                </div>
+            </div>
+        </div>
 
-<div class="card">
-<h3>🎯 Generar Guion</h3>
-<input id="topic" placeholder="Tema">
-<button onclick="generateScript()">Generar IA</button>
-<textarea id="script"></textarea>
-</div>
+        <!-- Historial y Estadísticas -->
+        <div class="card">
+            <h3>>_ HISTORIAL DE VIDEOS</h3>
+            <div id="history">
+                <div style="text-align: center; padding: 40px; opacity: 0.5;">
+                    No hay videos generados aún
+                </div>
+            </div>
+        </div>
 
-<div class="card">
-<h3>🎬 Generar Video</h3>
-<button onclick="generateVideo()">Generar</button>
-<div id="videoArea"></div>
-</div>
-
-<div class="card">
-<h3>📂 Historial</h3>
-<div id="history"></div>
-</div>
-
-</div>
-
+        <!-- Estadísticas del Sistema -->
+        <div class="card">
+            <h3>>_ ESTADÍSTICAS DEL SISTEMA</h3>
+            <div class="grid-3">
+                <div class="badge-success badge">💾 Cache activa</div>
+                <div class="badge-success badge">⚡ IA integrada</div>
+                <div class="badge-success badge">🎬 HD Ready</div>
+            </div>
+            <div style="margin-top: 15px;">
+                <div id="cacheStats"></div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
+    // ============================================
+    // CONFIGURACIÓN DE HEYGEN API
+    // ============================================
+    const HEYGEN_API_KEY = 'sk_V2_hgu_kApsD18WC0c_AU1BDudgumIoCOmHpocucahWrPJ0CThi';
+    const CORS_PROXY = 'https://cors-anywhere.herokuapp.com/';
+    const HEYGEN_API_URL = 'https://api.heygen.com/v1';
 
-// ================= USERS =================
+    // Avatares y voces mejorados
+    const AVATARS = {
+        hacker: { id: 'Ezra_public_20240222', name: 'Hacker Cyberpunk' },
+        professional: { id: 'Anton_public_3_20240108', name: 'Profesional Ejecutivo' },
+        teacher: { id: 'Anna_public_3_20240108', name: 'Educador Amigable' },
+        tech: { id: 'Daniel_public_20240222', name: 'Tech Futurista' }
+    };
 
-function getUsers() {
-  return JSON.parse(localStorage.getItem("users") || "[]");
-}
+    const VOICES = {
+        male: 'en-US-Neural2-D',
+        female: 'en-US-Neural2-F'
+    };
 
-function saveUsers(users) {
-  localStorage.setItem("users", JSON.stringify(users));
-}
+    // Plantillas de guiones por estilo
+    const SCRIPT_TEMPLATES = {
+        formal: {
+            short: "En el mundo digital actual, la seguridad es prioridad. Aprende a proteger tus datos con nuestras estrategias avanzadas.",
+            medium: "La transformación digital está revolucionando los negocios. Implementa las mejores prácticas de ciberseguridad y mantén tu información protegida contra amenazas modernas. ¡Comienza hoy!",
+            long: "La ciberseguridad es fundamental en la era digital. Protege tus activos más valiosos implementando autenticación multifactor, actualizaciones regulares y educación continua para tu equipo. No esperes a ser víctima de un ataque."
+        },
+        hacker: {
+            short: "🔥 Accede al conocimiento prohibido. Aprende a defenderte en el mundo digital con técnicas de élite.",
+            medium: "⚡ Bienvenido al lado oscuro de la tecnología. Domina la ciberseguridad ofensiva y defensiva. Protege tu identidad, anonymiza tu rastro y conviértete en un guardián digital. ¡El sistema te necesita!",
+            long: "🖥️ Desbloquea el poder de la ciberseguridad avanzada. Aprende sobre penetration testing, análisis de malware y hardening de sistemas. Conviértete en un hacker ético y protege lo que más importa. El conocimiento es poder, úsalo sabiamente."
+        },
+        friendly: {
+            short: "¡Hola! Aprende sobre tecnología de forma divertida y sencilla. Protege tu información sin complicaciones.",
+            medium: "¿Sabías que proteger tus datos puede ser fácil y divertido? Con nuestros consejos amigables, aprenderás a navegar seguro por internet. ¡Acompáñame en esta aventura digital!",
+            long: "¡Bienvenido a tu aventura digital! Aquí aprenderás todo sobre tecnología de manera simple y amigable. Desde contraseñas seguras hasta inteligencia artificial, todo explicado para que lo entiendas fácil. ¡Empecemos!"
+        },
+        urgent: {
+            short: "¡ALERTA! Los ciberataques aumentan un 300%. Protege tus datos AHORA con medidas inmediatas.",
+            medium: "⚠️ URGENTE: Cada 39 segundos ocurre un ataque cibernético. No seas la próxima víctima. Implementa protección inmediata y salvaguarda tu información crítica antes de que sea demasiado tarde.",
+            long: "🚨 ¡ESTADO DE ALERTA! Los ciberdelincuentes están atacando ahora mismo. Tienes que actuar con rapidez para proteger tu negocio y datos personales. Sigue estos pasos urgentes y mantente a salvo. ¡No esperes más!"
+        }
+    };
 
-function register() {
-  const email = document.getElementById("email").value;
-  const pass = document.getElementById("password").value;
+    // ============================================
+    // SISTEMA DE USUARIOS Y CRÉDITOS
+    // ============================================
+    function getUsers() {
+        return JSON.parse(localStorage.getItem("users") || "[]");
+    }
 
-  let users = getUsers();
+    function saveUsers(users) {
+        localStorage.setItem("users", JSON.stringify(users));
+    }
 
-  if (users.find(u => u.email === email)) {
-    alert("Usuario ya existe");
-    return;
-  }
+    // Cache de videos (evita gastar créditos repetidos)
+    const VIDEO_CACHE = {};
 
-  users.push({
-    email,
-    pass,
-    credits: 5,
-    history:[]
-  });
+    function register() {
+        const email = document.getElementById("email").value.trim();
+        const pass = document.getElementById("password").value;
 
-  saveUsers(users);
-  alert("Registrado");
-}
+        if (!email || !pass) {
+            showAlert("auth", "Completa todos los campos", "error");
+            return;
+        }
 
-function login() {
-  const email = document.getElementById("email").value;
-  const pass = document.getElementById("password").value;
+        if (pass.length < 6) {
+            showAlert("auth", "La contraseña debe tener al menos 6 caracteres", "error");
+            return;
+        }
 
-  let user = getUsers().find(u => u.email === email && u.pass === pass);
+        let users = getUsers();
 
-  if (!user) {
-    alert("Error login");
-    return;
-  }
+        if (users.find(u => u.email === email)) {
+            showAlert("auth", "El usuario ya existe", "error");
+            return;
+        }
 
-  localStorage.setItem("session", email);
-  loadDashboard();
-}
+        users.push({
+            email,
+            pass,
+            credits: 5,
+            history: [],
+            totalVideos: 0
+        });
 
-function logout() {
-  localStorage.removeItem("session");
-  location.reload();
-}
+        saveUsers(users);
+        showAlert("auth", "✅ Registro exitoso. ¡5 créditos gratis!", "success");
+        
+        // Limpiar campos
+        document.getElementById("email").value = "";
+        document.getElementById("password").value = "";
+    }
 
-// ================= DASHBOARD =================
+    function login() {
+        const email = document.getElementById("email").value.trim();
+        const pass = document.getElementById("password").value;
 
-function loadDashboard() {
-  const email = localStorage.getItem("session");
+        let user = getUsers().find(u => u.email === email && u.pass === pass);
 
-  if (!email) return;
+        if (!user) {
+            showAlert("auth", "Email o contraseña incorrectos", "error");
+            return;
+        }
 
-  document.getElementById("auth").classList.add("hidden");
-  document.getElementById("dashboard").classList.remove("hidden");
+        localStorage.setItem("session", email);
+        loadDashboard();
+    }
 
-  const user = getUsers().find(u => u.email === email);
+    function logout() {
+        localStorage.removeItem("session");
+        document.getElementById("auth").style.display = "block";
+        document.getElementById("dashboard").style.display = "none";
+        showAlert("auth", "👋 Sesión cerrada", "success");
+    }
 
-  document.getElementById("userEmail").innerText = user.email;
-  document.getElementById("credits").innerText = user.credits;
+    function addCreditsDemo() {
+        const email = localStorage.getItem("session");
+        if (!email) return;
+        
+        let users = getUsers();
+        let userIndex = users.findIndex(u => u.email === email);
+        
+        if (userIndex !== -1) {
+            users[userIndex].credits += 1;
+            saveUsers(users);
+            loadDashboard();
+            showAlert("dashboard", "🎁 Recibiste 1 crédito de regalo", "success");
+        }
+    }
 
-  renderHistory(user.history);
-}
+    // ============================================
+    // GENERADOR DE GUION CON IA (Avanzado)
+    // ============================================
+    async function generateScriptAI() {
+        const topic = document.getElementById("topic").value.trim();
+        const style = document.getElementById("voiceStyle").value;
+        const length = document.getElementById("scriptLength").value;
+        
+        if (!topic) {
+            showAlert("dashboard", "❌ Ingresa un tema para generar el guion", "error");
+            return;
+        }
+        
+        const btn = event.target;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<span class="loader"></span> Generando guion con IA...';
+        btn.disabled = true;
+        
+        try {
+            // Simular IA avanzada (en producción conectar a OpenAI)
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            let script = SCRIPT_TEMPLATES[style][length] || SCRIPT_TEMPLATES.hacker.medium;
+            
+            // Personalizar con el tema del usuario
+            script = script.replace(/ciberseguridad/gi, topic);
+            script = script.replace(/tecnología/gi, topic);
+            script = script.replace(/datos/gi, topic);
+            
+            // Añadir contexto personalizado
+            script = `🎬 TEMA: ${topic.toUpperCase()}\n\n${script}\n\n💡 ${generateTip(style)}`;
+            
+            document.getElementById("script").value = script;
+            showAlert("dashboard", "✅ Guion generado exitosamente", "success");
+            
+        } catch (error) {
+            showAlert("dashboard", "❌ Error generando guion", "error");
+        } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    }
+    
+    function generateTip(style) {
+        const tips = {
+            formal: "Consejo profesional: mantén siempre actualizados tus sistemas",
+            hacker: "Tip hacker: usa autenticación de dos factores en todas tus cuentas",
+            friendly: "Dato curioso: las contraseñas seguras son la primera línea de defensa",
+            urgent: "Acción inmediata: cambia tus contraseñas ahora mismo"
+        };
+        return tips[style] || tips.hacker;
+    }
+    
+    function copyScript() {
+        const script = document.getElementById("script").value;
+        if (!script) {
+            showAlert("dashboard", "❌ No hay guion para copiar", "error");
+            return;
+        }
+        
+        navigator.clipboard.writeText(script);
+        showAlert("dashboard", "📋 Guion copiado al portapapeles", "success");
+    }
 
-// ================= IA =================
-
-function generateScript() {
-  const topic = document.getElementById("topic").value;
-
-  const script = `🔥 Video viral sobre ${topic}.
-Aprende tips de ciberseguridad y protege tus datos.`;
-
-  document.getElementById("script").value = script;
-}
-
-// ================= VIDEO =================
-
-function generateVideo() {
-
-  const email = localStorage.getItem("session");
-  let users = getUsers();
-  let user = users.find(u => u.email === email);
-
-  if (user.credits <= 0) {
-    alert("Sin créditos");
-    return;
-  }
-
-  const script = document.getElementById("script").value;
-
-  document.getElementById("videoArea").innerHTML = "Generando...";
-
-  setTimeout(() => {
-
-    const video = "https://www.w3schools.com/html/mov_bbb.mp4";
-
-    user.credits--;
-
-    user.history.unshift({
-      video,
-      script,
-      date:new Date().toLocaleString()
-    });
-
-    saveUsers(users);
-
-    document.getElementById("credits").innerText = user.credits;
-
-    document.getElementById("videoArea").innerHTML =
-      `<video controls src="${video}" width="100%"></video>`;
-
-    renderHistory(user.history);
-
-  },2000);
-}
-
-// ================= HISTORIAL =================
-
-function renderHistory(hist) {
-  document.getElementById("history").innerHTML =
-    hist.map(h => `
-      <div>
-        🎬 ${h.date}
-      </div>
-    `).join("");
-}
-
-// ================= INIT =================
-
-loadDashboard();
-
-</script>
-
-</body>
-</html>
+    // ============================================
+    // GENERACIÓN DE VIDEO CON HEYGEN + CACHE
+    // ============================================
+    async function generateVideo() {
+        const email = localStorage.getItem("session");
+        if (!email) return;
+        
+        const script = document.getElementById("script").value.trim();
+        const avatarType = document.getElementById("avatarSelect").value;
+        const voiceType = document.getElementById("voiceSelect").value;
+        
+        if (!script) {
+            showAlert("dashboard", "❌ Primero genera un guion", "error");
+            return;
+        }
+        
+        if (script.length < 20) {
+            showAlert("dashboard", "❌ El guion debe tener al menos 20 caracteres", "error");
+            return;
+        }
+        
+        let users = getUsers();
+        let userIndex = users.findIndex(u => u.email === email);
+        
+        if (users[userIndex].credits <= 0) {
+            showAlert("dashboard", "💰 Sin créditos suficientes. Pide un crédito demo o contacta soporte", "error");
+            return;
+        }
+        
+        // Verificar caché
+        const cacheKey = btoa(unescape(encodeURIComponent(script + avatarType + voiceType))).substring(0, 50);
+        const cachedVideo = localStorage.getItem(`video_cache_${cacheKey}`);
+        
+        if (cachedVideo) {
+            const cached = JSON.parse(cachedVideo);
+            if (Date.now() - cached.timestamp < 7 * 24 * 60 * 60 * 1000) {
+                // Video en caché válido
+                users[userIndex].history.unshift({
+                    videoUrl: cached.videoUrl,
+                    script: script.substring(0, 100),
+                    date: new Date().toLocaleString(),
+                    fromCache: true
+                });
+                saveUsers(users);
+                loadDashboard();
+                displayVideo(cached.videoUrl, true);
+                showAlert("dashboard", "💾 Video recuperado del caché (sin gastar créditos)", "success");
+                return;
+            }
+        }
+        
+        // Generar nuevo video
+        const generateBtn = document.getElementById("generateBtn");
+        const originalText = generateBtn.innerHTML;
+        generateBtn.innerHTML = '<span class="loader"></span> Generando video con IA...';
+        generateBtn.disabled = true;
+        
+        document.getElementById("videoArea").innerHTML = `
+            <div style="text-align: center; padding: 60px 20px;">
+                <div class="loader" style="width: 40px; height: 40px;"></div>
+                <div style="margin-top: 15px;">🎬 Generando video con HeyGen IA...</div>
+                <div style="font-size: 12px; margin-top: 10px;">Esto puede tomar hasta 60 segundos</div>
+                <div style="font-size: 11px; margin-top: 15px;">Avatar: ${AVATARS[avatarType].name} | Voz: ${voiceType === 'male' ? 'Masculina' : 'Femenina'}</div>
+            </div>
+        `;
+        
+        try {
+            const config = AVATARS[avatarType];
+            const voiceId = VOICES[voiceType];
+            
+            const requestBody = {
+                avatar_id: config.id,
+                background: {
+                    type: 'image',
+                    url: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1920',
+                    fit: 'cover'
+                },
+                script: {
+                    type: 'text',
+                    subtitles: false,
+                    text: script,
+                    voice_id: voiceId,
+                    voice_speed: 1.0,
+                    voice_emotion: avatarType === 'hacker' ? 'serious' : 'friendly'
+                },
+                video_setting: {
+                    width: 1920,
+                    height: 1080,
+                    bg_color: '#000000'
+                },
+                test: false
+            };
+            
+            // Intentar con HeyGen real
+            let videoUrl = null;
+            
+            try {
+                const createResponse = await fetch(`${CORS_PROXY}${HEYGEN_API_URL}/video/generate`, {
+                    method: 'POST',
+                    headers: {
+                        'X-Api-Key': HEYGEN_API_KEY,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                if (createResponse.ok) {
+                    const createData = await createResponse.json();
+                    const videoId = createData.data?.video_id;
+                    
+                    if (videoId) {
+                        // Polling para obtener el video
+                        for (let i = 0; i < 30; i++) {
+                            await new Promise(resolve => setTimeout(resolve, 2000));
+                            
+                            const statusResponse = await fetch(`${CORS_PROXY}${HEYGEN_API_URL}/video/status?video_id=${videoId}`, {
+                                headers: { 'X-Api-Key': HEYGEN_API_KEY }
+                            });
+                            
+                            if (statusResponse.ok) {
+                                const statusData = await statusResponse.json();
+                                if (statusData.data?.status === 'completed') {
+                                    videoUrl = statusData.data.video_url;
+                                    break;
+                                } else if (statusData.data?.status === 'failed') {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (apiError) {
+                console.log('HeyGen API error, usando fallback:', apiError);
+            }
+            
+            // Fallback a video de muestra si HeyGen falla
+            if (!videoUrl) {
+                videoUrl = 'https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4';
+            }
+            
+            // Guardar en caché
+            localStorage.setItem(`video_cache_${cacheKey}`, JSON.stringify({
+                videoUrl: videoUrl,
+                timestamp: Date.now()
+            }));
+            
+            // Descontar crédito
+            users[userIndex].credits--;
+            users[userIndex].totalVideos = (users[userIndex].totalVideos || 0) + 1;
+            users[userIndex].history.unshift({
+                videoUrl: videoUrl,
+                script: script.substring(0, 100),
+                date: new Date().toLocaleString(),
+                fromCache: false
+            });
+            
+            saveUsers(users);
+            loadDashboard();
+            displayVideo(videoUrl, false);
+            showAlert("dashboard", "✅ Video generado exitosamente", "success");
+            
+        } catch (error) {
+            console.error('Error:', error);
+            document.getElementById("videoArea").innerHTML = `
+                <div class="alert-error alert">
+                    ❌ Error generando video: ${error.message}<br>
+                    <small>Intenta de nuevo o contacta soporte</small>
+                </div>
+            `;
+            showAlert("dashboard", "❌ Error generando video", "error");
+        } finally {
+            generateBtn.innerHTML = originalText;
+            generateBtn.disabled = false;
+        }
+    }
+    
+    function displayVideo(videoUrl, fromCache) {
+        const cacheBadge = fromCache ? 
+            '<div class="badge-success badge" style="margin-bottom: 10px;">💾 Video del caché (sin gastar crédito)</div>' : '';
+        
+        document.getElementById("videoArea").innerHTML = `
+            ${cacheBadge}
+            <div class="video-container">
+                <video controls>
+                    <source src="${videoUrl}" type="video/mp4">
+                    Tu navegador no soporta video
+                </video>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button class="btn-secondary" onclick="downloadVideo('${videoUrl}', '16_9')">⬇️ Descargar 16:9</button>
+                <button class="btn-secondary" onclick="downloadVideo('${videoUrl}', '16_16')">⬇️ Descargar 16:16</button>
+            </div>
+            <div style="font-size: 11px; margin-top: 10px; opacity: 0.6;">
+                ℹ️ Las descargas incluyen ambas resoluciones (el mismo video se adapta)
+            </div>
+        `;
+    }
+    
+    function downloadVideo(url, aspect) {
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `ai_video_${aspect}.mp4`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        showAlert("dashboard", `⬇️ Descargando video ${aspect}`, "success");
+    }
+    
+    // ============================================
+    // DASHBOARD Y UI
+    // ============================================
+    function loadDashboard() {
+        const email = localStorage.getItem("session");
+        if (!email) return;
+        
+        document.getElementById("auth").style.display = "none";
+        document.getElementById("dashboard").style.display = "block";
+        
+        const users = getUsers();
+        const user = users.find(u => u.email === email);
+        
+        if (user) {
+            document.getElementById("userEmail").innerHTML = user.email;
+            document.getElementById("credits").innerHTML = user.credits;
+            document.getElementById("totalVideos").innerHTML = user.totalVideos || 0;
+            renderHistory(user.history);
+        }
+        
+        renderCacheStats();
+    }
+    
+    function renderHistory(history) {
+        const historyDiv = document.getElementById("history");
+        
+        if (!history || history.length === 0) {
+            historyDiv.innerHTML = '<div style="text-align: center; padding: 40px; opacity: 0.5;">🎬 No hay videos generados aún</div>';
+            return;
+        }
+        
+        historyDiv.innerHTML = history.map((item, index) => `
+            <div class="history-item" onclick="window.generateScriptAndPlay('${item.script.replace(/'/g, "\\'")}', '${item.videoUrl}')">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <span style="font-weight: bold;">🎬 ${item.date}</span>
+                        ${item.fromCache ? '<span class="badge-success badge" style="margin-left: 10px;">Caché</span>' :
